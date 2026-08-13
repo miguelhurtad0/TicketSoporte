@@ -14,9 +14,7 @@ namespace TicketSoporte.Application.DTOs.Usuarios
 
         [Required(ErrorMessage = "La contraseña del usuario es requerida.")]
         public string Password { get; set; } = null!;
-
-        [Required(ErrorMessage = "El rol del usuario es requerido.")]
-        public string Rol { get; set; } = null!;
+        public string? Rol { get; set; } = null!;
 
         [Required(ErrorMessage = "El teléfono del usuario es requerido.")]
         public string PhoneNumber { get; set; } = null!;

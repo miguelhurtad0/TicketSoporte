@@ -5,6 +5,6 @@ namespace TicketSoporte.Application.DTOs.Usuarios
 {
     public class RefreshTokenDto
     {
-        public string Refreshtoken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
     }
 }

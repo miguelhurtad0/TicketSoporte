@@ -81,6 +81,11 @@ namespace TicketSoporte.Infrastructure.Repository
             return await _context.Tickets.CountAsync(t => t.DepartamentoId == departamentoId);
         }
 
+        public async Task<int> ContarPorTecnicoAsync(int tecnicoId)
+        {
+            return await _context.Tickets.CountAsync(t => t.TecnicoAsignadoId == tecnicoId);
+        }
+
         public async Task CrearAsync(Tickets ticket)
         {
             await _context.Tickets.AddAsync(ticket);
@@ -125,6 +130,19 @@ namespace TicketSoporte.Infrastructure.Repository
                 .Include(t => t.Tecnico)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<IEnumerable<Tickets>> ObtenerPorTecnicoAsync(int tecnicoId, int pagina, int tamano)
+        {
+            return await _context.Tickets
+                .Include(t => t.Cliente)
+                .Include(t => t.Departamentos)
+                .Where(t => t.TecnicoAsignadoId == tecnicoId) // Filtramos por el técnico
+                .OrderByDescending(t => t.FechaCreacion)
+                .Skip((pagina - 1) * tamano)
+                .Take(tamano)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Tickets>> ObtenerTicketsAsync(int numPagina, int cantidad)

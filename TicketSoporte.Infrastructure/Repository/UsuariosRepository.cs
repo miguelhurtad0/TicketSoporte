@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TicketSoporte.Application.Interface.Repository;
 using TicketSoporte.Domain.Entites;
 using TicketSoporte.Infrastructure.Data;
@@ -38,6 +37,28 @@ namespace TicketSoporte.Infrastructure.Repository
                .Skip((pagina - 1) * tamano)
                .Take(tamano)
                .ToListAsync();
+        }
+
+        // ¡NUEVO! Cuenta cuántos usuarios coinciden con la búsqueda
+        public async Task<int> ContarBusquedaAsync(string nombre)
+        {
+            return await _context.Users
+                .Where(u => (u.NombreCompleto != null && u.NombreCompleto.ToLower().Contains(nombre.ToLower())) ||
+                             u.UserName!.ToLower().Contains(nombre.ToLower()))
+                .CountAsync();
+        }
+
+        // ¡NUEVO! Trae los usuarios filtrados y paginados
+        public async Task<IEnumerable<Usuarios>> BuscarPorNombreAsync(string nombre, int pagina, int tamano)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => (u.NombreCompleto != null && u.NombreCompleto.ToLower().Contains(nombre.ToLower())) ||
+                             u.UserName!.ToLower().Contains(nombre.ToLower()))
+                .OrderBy(u => u.NombreCompleto) // Ordenamos por nombre
+                .Skip((pagina - 1) * tamano)
+                .Take(tamano)
+                .ToListAsync();
         }
     }
 }

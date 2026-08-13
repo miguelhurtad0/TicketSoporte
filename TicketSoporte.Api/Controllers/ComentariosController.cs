@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TicketSoporte.Api.Request;
 using TicketSoporte.Application.DTOs.Comentarios;
 using TicketSoporte.Application.Interface.Service;
@@ -11,56 +12,63 @@ namespace TicketSoporte.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] 
     public class ComentariosController : ControllerBase
     {
         private readonly IComentariosService _service;
+        private readonly ITicketsService _ticketsService; 
         private readonly IMapper _mapper;
 
-        public ComentariosController(IComentariosService service, IMapper mapper)
+        
+        public ComentariosController(IComentariosService service, ITicketsService ticketsService, IMapper mapper)
         {
             _service = service;
+            _ticketsService = ticketsService;
             _mapper = mapper;
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Admin,Tecnico")]
-        public async Task<ActionResult<IEnumerable<ComentariosDto>>> ObtenerTodos([FromQuery] int pagina = 1, [FromQuery] int tamano = 10)
-        {
-            var registros = await _service.ObtenerComentariosDtosAsync(pagina, tamano);
-            var total = await _service.ContarAsync();
-            return Ok(new RespuestaPaginada<ComentariosDto>(registros, total, pagina, tamano));
-        }
+        
+        private int ObtenerUsuarioId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        private string ObtenerUsuarioRol() => User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
 
-        [HttpGet("buscar")]
-        public async Task<ActionResult<IEnumerable<ComentariosDto>>> Buscar([FromQuery] string valor, [FromQuery] int pagina = 1, [FromQuery] int tamano = 10)
-        {
-            var registros = await _service.BuscarComentariosDtosAsync(valor, pagina, tamano);
-            var total = await _service.ContarBusquedaAsync(valor);
-            return Ok(new RespuestaPaginada<ComentariosDto>(registros, total, pagina, tamano));
-        }
 
-        [HttpGet("{id:int}", Name = "ObtenerComentario")]
-        public async Task<ActionResult<ComentariosDto>> ObtenerPorId(int id)
-        {
-            var registro = await _service.ObtenerPorIdAsync(id);
-     
-            if (registro == null)
-                return NotFound(new { mensaje = $"El comentario con ID {id} no existe." });
-
-            return Ok(registro);
-        }
-
-        // Método especial para ver el historial de un ticket
         [HttpGet("ticket/{ticketId:int}")]
         public async Task<ActionResult<IEnumerable<ComentariosDto>>> ObtenerPorTicket(int ticketId)
         {
-            var registros = await _service.ObtenerPorTicketIdAsync(ticketId);
+            var rol = ObtenerUsuarioRol();
+            var usuarioId = ObtenerUsuarioId();
+
+            var ticket = await _ticketsService.ObtenerPorIdAsync(ticketId);
+            if (ticket == null) return NotFound(new { mensaje = "El ticket no existe." });
+
+            if (rol == "Cliente" && ticket.ClienteId != usuarioId) return Forbid();
+            if (rol == "Tecnico" && ticket.TecnicoAsignadoId != usuarioId) return Forbid();
+
+           
+            bool ocultarInternos = (rol == "Cliente");
+
+            var registros = await _service.ObtenerPorTicketIdAsync(ticketId, ocultarInternos);
             return Ok(registros);
         }
 
         [HttpPost]
         public async Task<ActionResult<ComentariosDto>> Crear([FromBody] ComentariosCrearDto dto)
         {
+            var rol = ObtenerUsuarioRol();
+            var usuarioId = ObtenerUsuarioId();
+
+          
+            var ticket = await _ticketsService.ObtenerPorIdAsync(dto.TikectId); 
+            if (ticket == null) return NotFound(new { mensaje = "El ticket no existe." });
+
+            if (rol == "Cliente" && ticket.ClienteId != usuarioId) return Forbid();
+            if (rol == "Tecnico" && ticket.TecnicoAsignadoId != usuarioId) return Forbid();
+
+        
+            if (rol == "Cliente") dto.EsInterno = "false"; 
+
+            dto.AutorId = usuarioId; 
+
             var creado = await _service.CrearAsync(dto);
 
             return CreatedAtRoute("ObtenerComentario", new { id = creado.Id }, creado);
@@ -69,10 +77,19 @@ namespace TicketSoporte.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult<ComentariosDto>> Editar(int id, [FromBody] ComentariosEditarDto dto)
         {
+            var rol = ObtenerUsuarioRol();
+            var usuarioId = ObtenerUsuarioId();
+
+            var comentarioActual = await _service.ObtenerPorIdAsync(id);
+            if (comentarioActual == null) return NotFound();
+
+            // Seguridad: Solo puedes editar tu propio comentario (a menos que seas Admin)
+            if (rol != "Admin" && comentarioActual.AutorId != usuarioId) return Forbid();
+
+            // Seguridad: Un cliente no puede modificar un comentario para hacerlo interno
+            if (rol == "Cliente") dto.EsInterno = "false";
+
             var actualizado = await _service.ActualizarAsync(id, dto);
-
-            if (actualizado == null) return NotFound();
-
             return Ok(actualizado);
         }
     }

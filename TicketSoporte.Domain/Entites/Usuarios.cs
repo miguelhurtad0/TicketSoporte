@@ -8,6 +8,7 @@ namespace TicketSoporte.Domain.Entites
 {
     public class Usuarios : IdentityUser<int>
     {
+        public string? NombreCompleto { get; set; }
 
         public virtual ICollection<Departamentos> Departamentos { get; set; } = new List<Departamentos>();
         public virtual ICollection<Tickets> Clientes { get; set; } = new List<Tickets>();

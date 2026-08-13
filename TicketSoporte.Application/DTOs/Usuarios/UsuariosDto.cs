@@ -9,5 +9,6 @@ namespace TicketSoporte.Application.DTOs.Usuarios
         public string PhoneNumber { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Rol { get; set; } = null!; 
+        public string? NombreCompleto { get; set; }
     }
 }

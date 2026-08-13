@@ -102,5 +102,24 @@ namespace TicketSoporte.Infrastructure.Repository
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Comentarios>> ObtenerPorTicketIdAsync(int ticketId, bool ocultarInternos)
+        {
+            var query = _context.Comentarios
+                .Include(c => c.Autor)
+                .Where(c => c.TikectId == ticketId); // Usando tu propiedad actual
+
+            // Filtro de seguridad: Si es verdadero, omitimos los comentarios internos
+            if (ocultarInternos)
+            {
+                // NOTA: Asegúrate de que tu entidad tenga la propiedad 'EsInterno' (o el nombre que le hayas puesto)
+                query = query.Where(c => c.EsInterno == "false" || c.EsInterno == null);
+            }
+
+            return await query
+                .OrderBy(c => c.FechaCreacion)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

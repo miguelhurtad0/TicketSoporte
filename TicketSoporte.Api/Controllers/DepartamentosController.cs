@@ -10,6 +10,7 @@ namespace TicketSoporte.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] 
     public class DepartamentosController : ControllerBase
     {
         private readonly IDepartamentoService _service;
@@ -21,6 +22,7 @@ namespace TicketSoporte.Api.Controllers
             _mapper = mapper;
         }
 
+       
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DepartamentosDto>>> ObtenerTodos([FromQuery] int pagina = 1, [FromQuery] int tamano = 10)
         {
@@ -58,7 +60,6 @@ namespace TicketSoporte.Api.Controllers
                 return BadRequest(ModelState);
 
             var departamentoCreado = await _service.CrearAsync(dto);
-
 
             return CreatedAtRoute("ObtenerDepartamento", new { id = departamentoCreado.Id }, departamentoCreado);
         }

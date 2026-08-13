@@ -1,6 +1,4 @@
-﻿
-
-using TicketSoporte.Domain.Entites;
+﻿using TicketSoporte.Domain.Entites;
 
 namespace TicketSoporte.Application.Interface.Repository
 {
@@ -9,5 +7,9 @@ namespace TicketSoporte.Application.Interface.Repository
         Task<Usuarios?> ObtenerPorIdAsync(int id);
         Task<IEnumerable<Usuarios>> ObtenerUsuariosAsync(int pagina, int tamano);
         Task<int> ContarAsync();
+
+
+        Task<IEnumerable<Usuarios>> BuscarPorNombreAsync(string nombre, int pagina, int tamano);
+        Task<int> ContarBusquedaAsync(string nombre);
     }
 }

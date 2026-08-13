@@ -63,12 +63,17 @@ namespace TicketSoporte.Application.Service
 
         public async Task<int> ContarPorClienteAsync(int clienteId)
         {
-            return await _repository.ContarPorDepartamentoAsync(clienteId);
+            return await _repository.ContarPorClienteAsync(clienteId);
         }
 
         public async Task<int> ContarPorDepartamentoAsync(int departamentoId)
         {
             return await _repository.ContarPorDepartamentoAsync(departamentoId);
+        }
+
+        public async Task<int> ContarPorTecnicoAsync(int tecnicoId)
+        {
+            return await _repository.ContarPorTecnicoAsync(tecnicoId);
         }
 
         public async Task<TicketsDto> CrearAsync(TicketsCrearDto dto)
@@ -103,6 +108,12 @@ namespace TicketSoporte.Application.Service
                 throw new KeyNotFoundException("Registro no encontrado.");
 
             return _mapper.Map<TicketsDto>(ticket);
+        }
+
+        public async Task<IEnumerable<TicketsDto>> ObtenerPorTecnicoAsync(int tecnicoId, int pagina, int tamano)
+        {
+            var tickets = await _repository.ObtenerPorTecnicoAsync(tecnicoId, pagina, tamano);
+            return _mapper.Map<IEnumerable<TicketsDto>>(tickets);
         }
 
         public async Task<IEnumerable<TicketsDto>> ObtenerTicketsDtosAsync(int pagina, int tamano)

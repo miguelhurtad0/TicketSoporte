@@ -11,7 +11,9 @@ namespace TicketSoporte.Application.Interface.Service
         Task<IEnumerable<TicketsDto>> BuscarTicketsDtosAsync(string valor, int pagina, int tamano);
         Task<IEnumerable<TicketsDto>> ObtenerPorDepartamentoAsync(int departamentoId, int pagina, int tamano);
         Task<IEnumerable<TicketsDto>> ObtenerPorClienteAsync(int clienteId, int pagina, int tamano);
+        Task<IEnumerable<TicketsDto>> ObtenerPorTecnicoAsync(int tecnicoId, int pagina, int tamano);
 
+        Task<int> ContarPorTecnicoAsync(int tecnicoId);
         Task<int> ContarPorClienteAsync(int clienteId);
         Task<int> ContarPorDepartamentoAsync(int departamentoId);
         Task<int> ContarAsync();

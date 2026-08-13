@@ -9,6 +9,7 @@ namespace TicketSoporte.Application.Interface.Repository
         Task<Comentarios?> ObtenerPorIdAsync(int id);
         Task<IEnumerable<Comentarios>> ObtenerComentariosAsync(int numPagina, int cantidad);
         Task<IEnumerable<Comentarios>> BuscarComentariosAsync(string valor, int numPagina, int cantidad);
+        Task<IEnumerable<Comentarios>> ObtenerPorTicketIdAsync(int ticketId, bool ocultarInternos);
         Task<int> ContarAsync();
         Task<int> ContarBusquedaAsync(string valor);
         Task CrearAsync(Comentarios comentario);

@@ -11,6 +11,9 @@ namespace TicketSoporte.Application.Interface.Service
         Task<UsuariosDto?> ObtenerPorIdAsync(int id);
         Task<IEnumerable<UsuariosDto>> ObtenerUsuariosAsync(int pagina, int tamano);
         Task<int> ContarAsync();
-      
+
+        Task<IEnumerable<UsuariosDto>> BuscarPorNombreAsync(string nombre, int pagina, int tamano);
+        Task<int> ContarBusquedaAsync(string nombre);
+        Task<bool> EliminarUsuarioAsync(int id);
     }
 }

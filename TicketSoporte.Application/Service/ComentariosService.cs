@@ -78,5 +78,11 @@ namespace TicketSoporte.Application.Service
             var comentarios = await _repository.ObtenerPorTicketIdAsync(ticketId);
             return _mapper.Map<IEnumerable<ComentariosDto>>(comentarios);
         }
+
+        public async Task<IEnumerable<ComentariosDto>> ObtenerPorTicketIdAsync(int ticketId, bool ocultarInternos)
+        {
+            var comentarios = await _repository.ObtenerPorTicketIdAsync(ticketId, ocultarInternos);
+            return _mapper.Map<IEnumerable<ComentariosDto>>(comentarios);
+        }
     }
 }

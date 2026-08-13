@@ -46,7 +46,8 @@ namespace TicketSoporte.Application.Service
                 UserName = usuario.UserName!,
                 Email = usuario.Email!,
                 Rol = roles.FirstOrDefault() ?? "",
-                PhoneNumber = usuario.PhoneNumber ?? ""
+                PhoneNumber = usuario.PhoneNumber ?? "",
+                NombreCompleto = usuario.NombreCompleto
             };
         }
 
@@ -131,7 +132,7 @@ namespace TicketSoporte.Application.Service
                 throw new UnauthorizedAccessException("Usuario no registrado.");
 
             if (!await _userManager.CheckPasswordAsync(usuario, dto.Password))
-                throw new UnauthorizedAccessException("Contraseña es incorrecto. Verifique por favor.");
+                throw new UnauthorizedAccessException("Contraseña es incorrecta. Verifique por favor.");
 
             var roles = await _userManager.GetRolesAsync(usuario);
             var rol = roles.FirstOrDefault() ?? "Usuario";
